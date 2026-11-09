@@ -92,7 +92,7 @@ async function loadPosts(userId){
 }
 
 async function loadUsers(){
- usersStatus.textContent='Cargando usuarios…';
+ usersStatus.textContent='Cargando usuarios, por favor espera un momento…';
  usersError.hidden=true;
  usersList.setAttribute('aria-busy','true');
  try{
