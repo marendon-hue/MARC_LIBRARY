@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MARC Librería · Libros para cada lector</title>
+<meta name="description" content="MARC, librería en Colombia. Catálogo de libros para todos los lectores.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="sr skip" href="#catalogo">Saltar al catálogo</a>
+
+<!-- ===== 1. NAVEGACIÓN ===== -->
+<header>
+ <div class="nav">
+  <a class="logo" href="#inicio" aria-label="MARC, inicio">MARC</a>
+  <button class="ib" id="menuBtn" aria-expanded="false" aria-controls="menu">☰ Menú</button>
+  <ul id="menu">
+   <li><a href="#inicio">Inicio</a></li>
+   <li><a href="#catalogo">Catálogo</a></li>
+    <li><a href="#usuarios">Usuarios y publicaciones</a></li>
+   <li><a href="#categorias">Categorías</a></li>
+   <li><a href="#novedades">Novedades</a></li>
+   <li><a href="#catalogo" data-tab="best">Más vendidos</a></li>
+   <li><a href="#nosotros">Nosotros</a></li>
+   <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <input class="search" type="search" id="navq" data-f="q" placeholder="Título, autor, ISBN…" aria-label="Buscar libros por título, autor, ISBN o categoría" autocomplete="off">
+  <button class="ib" data-act="favs" id="favBtn" aria-pressed="false" aria-label="Ver solo favoritos">♥ <b id="favN">0</b></button>
+  <button class="ib" data-act="theme" aria-label="Cambiar entre modo claro y oscuro">◐</button>
+  <button class="ib" data-act="cart" aria-label="Abrir carrito">🛒 <b id="cartN">0</b></button>
+ </div>
+</header>
+
+<main id="inicio">
+<!-- ===== 2. HERO ===== -->
+<div class="hero"><div class="wrap">
+ <div>
+  <h1>Un libro para cada lector.</h1>
+  <p>En MARC encuentras novelas, ensayo, poesía y libros para los más pequeños. Elige, guarda tus favoritos y recibe tu pedido en cualquier lugar de Colombia.</p>
+  <p><a class="btn" href="#catalogo">Explorar catálogo</a></p>
+ </div>
+ <div class="trio" id="trio" aria-hidden="true"></div>
+</div></div>
+
+<!-- ===== 3. NOVEDADES ===== -->
+<section id="novedades"><div class="wrap">
+ <div class="row"><div><h2>Novedades</h2><p class="sub">Los últimos títulos que llegaron a nuestras mesas.</p></div>
+ <div><button class="ib" data-act="prev" aria-label="Anterior">‹</button> <button class="ib" data-act="next" aria-label="Siguiente">›</button></div></div>
+ <div class="car" id="car" tabindex="0" aria-label="Carrusel de novedades"></div>
+</div></section>
+
+<!-- ===== 4. CATEGORÍAS ===== -->
+<section id="categorias" class="alt"><div class="wrap">
+ <h2>Categorías</h2><p class="sub">Elige una y filtramos el catálogo por ti.</p>
+ <div class="cats" id="cats"></div>
+</div></section>
+
+<!-- ===== USUARIOS Y PUBLICACIONES (JSONPlaceholder) ===== -->
+<section id="usuarios" class="alt"><div class="wrap">
+ <h2>Usuarios y pu  blicaciones</h2>
+ <p class="sub">Consulta los usuarios y explora las publicaciones de cada uno.</p>
+ <div class="row"><p id="usersStatus" class="api-status" role="status" aria-live="polite">Cargando usuarios…</p>
+  <button class="btn ghost" id="retryUsers" type="button" hidden>Reintentar usuarios</button></div>
+ <div id="usersError" class="api-error" role="alert" hidden></div>
+ <div class="users-grid" id="usersList" aria-busy="true"></div>
+ <div class="posts-panel" aria-labelledby="postsTitle">
+  <div class="row"><div><h3 id="postsTitle">Publicaciones</h3><p class="sub" id="selectedUser">Selecciona un usuario para ver sus publicaciones.</p></div>
+   <button class="btn ghost" id="retryPosts" type="button" hidden>Reintentar</button></div>
+  <p id="postsStatus" class="api-status" role="status" aria-live="polite"></p>
+  <div id="postsError" class="api-error" role="alert" hidden></div>
+  <div id="postsList" class="posts-grid" aria-busy="false"></div>
+ </div>
+</div></section>
+
+<!-- ===== 5-6. CATÁLOGO ===== -->
+<section id="catalogo"><div class="wrap">
+ <h2>Catálogo</h2>
+ <div class="tabs" role="tablist" id="tabs" aria-label="Listas de libros">
+  <button role="tab" data-tab="all">Todos</button><button role="tab" data-tab="new">Novedades</button>
+  <button role="tab" data-tab="best">Más vendidos</button><button role="tab" data-tab="offer">Ofertas</button>
+ </div>
+ <div class="az" id="az" aria-label="Filtrar por letra inicial del título"></div>
+ <div class="filters">
+  <label>Categoría<select data-f="cat" id="fCat"><option value="">Todas</option></select></label>
+  <label>Género<select data-f="genre" id="fGenre"><option value="">Todos</option></select></label>
+  <label>Autor<select data-f="author" id="fAuthor"><option value="">Todos</option></select></label>
+  <label>Editorial<select data-f="pub" id="fPub"><option value="">Todas</option></select></label>
+  <label>Año<select data-f="year" id="fYear"><option value="">Todos</option></select></label>
+  <label>Precio mínimo (COP)<input type="number" min="0" step="1000" data-f="pmin" placeholder="0"></label>
+  <label>Precio máximo (COP)<input type="number" min="0" step="1000" data-f="pmax" placeholder="Sin límite"></label>
+  <label>Disponibilidad<select data-f="avail"><option value="">Todos</option><option value="in">Disponibles</option><option value="out">Agotados</option></select></label>
+  <label>Calificación mínima<select data-f="rating"><option value="">Cualquiera</option><option value="4.5">4.5 o más</option><option value="4">4 o más</option><option value="3">3 o más</option></select></label>
+  <label>Ordenar por<select data-f="sort"><option value="rel">Relevancia</option><option value="pa">Precio: menor a mayor</option><option value="pd">Precio: mayor a menor</option><option value="t">Título (A-Z)</option><option value="ya">Año: más antiguos</option><option value="yd">Más recientes</option><option value="r">Mejor calificados</option></select></label>
+ </div>
+ <div class="chips" id="chips" aria-label="Filtros activos"></div>
+ <div class="bar">
+  <strong id="count" role="status" aria-live="polite"></strong>
+  <span><button class="ib" data-act="grid" aria-pressed="true">▦ Cuadrícula</button> <button class="ib" data-act="list" aria-pressed="false">☰ Lista</button></span>
+ </div>
+ <div class="grid" id="grid"></div>
+ <div class="empty" id="empty" hidden>
+  <h3>No encontramos libros con esos criterios</h3>
+  <p>Revisa la ortografía o quita algún filtro.</p>
+  <button class="btn" data-act="reset">Limpiar filtros</button>
+ </div>
+ <div class="more"><button class="btn ghost" id="more" data-act="more">Cargar más</button></div>
+</div></section>
+
+<!-- ===== 7. NOSOTROS ===== -->
+<section id="nosotros" class="alt"><div class="wrap">
+ <div class="two">
+  <div>
+   <h2>Sobre nosotros</h2>
+   <p>MARC nació de una idea sencilla: que leer sea fácil y cercano. Seleccionamos libros de autores colombianos, latinoamericanos y del mundo para todas las edades y gustos.</p>
+   <p>Nuestros libreros leen lo que recomiendan. Si no sabes qué llevar, pregúntales.</p>
+  </div>
+  <div>
+   <h2>Ubicación y horarios</h2>
+   <!-- Reemplaza por tu dirección y horarios reales -->
+   <p><strong>Dirección:</strong> Carrera 00 # 00-00, [Tu ciudad], Colombia</p>
+   <p><strong>Lunes a sábado:</strong> 9:00 a. m. – 7:00 p. m.<br><strong>Domingos y festivos:</strong> 10:00 a. m. – 4:00 p. m.</p>
+   <p><strong>Teléfono / WhatsApp:</strong> +57 300 000 0000</p>
+  </div>
+ </div>
+ <div class="tst">
+  <blockquote>“Encontré la edición que buscaba hace años y llegó en dos días.”<br><b>— Laura M.</b></blockquote>
+  <blockquote>“Buenas recomendaciones y un sitio muy fácil de usar.”<br><b>— Andrés P.</b></blockquote>
+  <blockquote>“Mis hijos ya piden ir a la librería cada fin de semana.”<br><b>— Carolina R.</b></blockquote>
+ </div>
+</div></section>
+
+<!-- ===== 8. CONTACTO Y BOLETÍN ===== -->
+<section id="contacto"><div class="wrap two">
+ <div>
+  <h2>Contacto</h2><p class="sub">Escríbenos y te respondemos en un día hábil.</p>
+  <form id="fContact" novalidate>
+   <label>Nombre<input name="n" data-v="req" autocomplete="name"><span class="err" aria-live="polite"></span></label>
+   <label>Correo electrónico<input name="e" type="email" data-v="req,email" autocomplete="email"><span class="err" aria-live="polite"></span></label>
+   <label>Mensaje<textarea name="m" rows="4" data-v="req,msg"></textarea><span class="err" aria-live="polite"></span></label>
+   <button class="btn">Enviar mensaje</button>
+  </form>
+ </div>
+ <div>
+  <h2>Boletín</h2><p class="sub">Recibe novedades y ofertas una vez al mes.</p>
+  <form id="fNews" novalidate>
+   <label>Correo electrónico<input name="e" type="email" data-v="req,email" autocomplete="email"><span class="err" aria-live="polite"></span></label>
+   <button class="btn">Suscribirme</button>
+  </form>
+
+  <!-- Registro de lector (nombre, correo y edad) -->
+  <h2 style="margin-top:2rem">Registro de lector</h2>
+  <p class="sub">Déjanos tus datos y te recomendamos libros.</p>
+  <form id="fReader" novalidate>
+   <label>Nombre<input name="nombre" data-v="req" autocomplete="name"><span class="err" aria-live="polite"></span></label>
+   <label>Correo electrónico<input name="correo" type="email" data-v="req,email" autocomplete="email"><span class="err" aria-live="polite"></span></label>
+   <label>Edad<input name="edad" type="number" min="1" max="120" inputmode="numeric" data-v="req,age"><span class="err" aria-live="polite"></span></label>
+   <button class="btn">Registrarme</button>
+  </form>
+ </div>
+</div></section>
+</main>
+
+<!-- ===== 9. FOOTER ===== -->
+<footer><div class="wrap">
+ <div class="fg">
+  <div><div class="logo">MARC</div><p>Librería en Colombia.<br>Libros para cada lector.</p></div>
+  <div><b>Explora</b><ul><li><a href="#catalogo">Catálogo</a></li><li><a href="#novedades">Novedades</a></li><li><a href="#categorias">Categorías</a></li></ul></div>
+  <div><b>MARC</b><ul><li><a href="#nosotros">Nosotros</a></li><li><a href="#contacto">Contacto</a></li></ul></div>
+  <div><b>Redes</b><ul><li><a href="#" aria-label="Instagram de MARC">Instagram</a></li><li><a href="#" aria-label="Facebook de MARC">Facebook</a></li><li><a href="#" aria-label="TikTok de MARC">TikTok</a></li></ul></div>
+ </div>
+ <p>© <span id="yr"></span> MARC Librería. Todos los derechos reservados.</p>
+</div></footer>
+
+<button class="btn" id="top" data-act="top" aria-label="Volver arriba">↑</button>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Detalle del libro -->
+<dialog id="detD" aria-label="Detalle del libro"><div class="dlg"><button class="ib x" data-act="close" aria-label="Cerrar">✕</button><div id="det"></div></div></dialog>
+
+<!-- Carrito -->
+<dialog id="cartD" aria-label="Carrito de compras"><div class="dlg">
+ <button class="ib x" data-act="close" aria-label="Cerrar carrito">✕</button>
+ <h2>Tu carrito</h2>
+ <div id="cartItems"></div>
+ <div class="tot" id="tot"></div>
+ <div style="display:flex;gap:.5rem;margin-top:.8rem"><button class="btn" data-act="checkout" id="coBtn">Finalizar pedido</button><button class="btn ghost" data-act="clear">Vaciar</button></div>
+</div></dialog>
+
+<!-- Finalizar pedido (simulado) -->
+<dialog id="coD" aria-label="Finalizar pedido"><div class="dlg">
+ <button class="ib x" data-act="close" aria-label="Cerrar">✕</button>
+ <div id="coBody">
+  <h2>Finalizar pedido</h2>
+  <div id="sum"></div>
+  <form id="fOrder" novalidate>
+   <label>Nombre completo<input name="n" data-v="req" autocomplete="name"><span class="err" aria-live="polite"></span></label>
+   <label>Correo electrónico<input name="e" type="email" data-v="req,email" autocomplete="email"><span class="err" aria-live="polite"></span></label>
+   <label>Teléfono<input name="t" type="tel" data-v="req,phone" autocomplete="tel"><span class="err" aria-live="polite"></span></label>
+   <label>Ciudad<input name="c" data-v="req" autocomplete="address-level2"><span class="err" aria-live="polite"></span></label>
+   <label>Dirección de entrega<input name="d" data-v="req" autocomplete="street-address"><span class="err" aria-live="polite"></span></label>
+   <label>Método de pago<select name="p"><option>Contra entrega</option><option>Transferencia bancaria</option><option>Tarjeta (simulado)</option></select></label>
+   <button class="btn">Confirmar pedido</button>
+  </form>
+ </div>
+</div></dialog>
+
+<script src="script.js"></script>
+</body>
+</html>

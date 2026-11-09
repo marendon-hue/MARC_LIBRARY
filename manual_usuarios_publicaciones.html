@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manual de usuario · Usuarios y publicaciones</title>
+<style>
+:root{color-scheme:light;--ink:#252a2b;--muted:#586365;--paper:#f4f3ed;--line:#c9ceca;--green:#226a59;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Georgia,"Times New Roman",serif}
+main{max-width:980px;margin:0 auto;padding:2rem 1.25rem 4rem}
+header{border-bottom:1px solid var(--line);padding:1rem 0 1.5rem}
+h1,h2,h3{font-family:Arial,sans-serif;line-height:1.2}
+h1{font-size:2rem;margin:.4rem 0}
+h2{font-size:1.35rem;margin:2rem 0 .5rem}
+p{margin:.5rem 0}
+.kicker{color:var(--green);font:700 .8rem/1.3 Arial,sans-serif;text-transform:uppercase}
+.steps{padding-left:1.4rem}
+.steps li{padding:.2rem 0}
+figure{margin:1rem 0;border:1px solid var(--line);background:var(--white);border-radius:8px;overflow:hidden}
+iframe{display:block;width:100%;height:620px;border:0}
+figcaption{padding:.65rem .9rem;border-top:1px solid var(--line);color:var(--muted);font: .9rem/1.4 Arial,sans-serif}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--white);font-size:.95rem}
+th,td{text-align:left;vertical-align:top;padding:.65rem;border:1px solid var(--line)}
+th{font-family:Arial,sans-serif;background:#e7ebe6}
+code{font: .9em Consolas,monospace;background:#e7ebe6;padding:.1em .3em;border-radius:3px}
+.note{border-left:4px solid var(--green);padding:.65rem 1rem;background:#e8eee9}
+@media(max-width:600px){main{padding:1rem .75rem 2rem}h1{font-size:1.6rem}iframe{height:720px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <p class="kicker">MARC Librería · Manual de usuario</p>
+ <h1>Usuarios y publicaciones</h1>
+ <p>La aplicación consulta usuarios y publicaciones de JSONPlaceholder. No requiere instalar dependencias: abre <code>index.html</code> con conexión a internet.</p>
+</header>
+
+<h2>Vista de la funcionalidad</h2>
+<figure>
+ <iframe src="index.html#usuarios" title="Vista de usuarios y publicaciones en MARC"></iframe>
+ <figcaption>Vista interactiva de la aplicación. Desplázate dentro del marco para revisar los usuarios y sus publicaciones.</figcaption>
+</figure>
+
+<h2>Cómo consultar publicaciones</h2>
+<ol class="steps">
+ <li>Abre la sección <b>Usuarios y publicaciones</b> desde el menú o desplazándote hacia abajo.</li>
+ <li>Espera a que aparezca la lista de usuarios con nombre, correo electrónico y empresa.</li>
+ <li>Selecciona <b>Ver publicaciones</b> en cualquier usuario.</li>
+ <li>Consulta los títulos y contenidos en el panel de publicaciones. Al seleccionar otro usuario, los resultados se actualizan.</li>
+ <li>Si falla la conexión, lee el aviso y usa el botón de reintento cuando se restablezca.</li>
+</ol>
+
+<h2>Ver las consultas en DevTools</h2>
+<ol class="steps">
+ <li>Abre DevTools con <code>F12</code> y entra en la pestaña <b>Network</b>. Activa <b>Fetch/XHR</b> y limpia la lista.</li>
+ <li>Recarga la aplicación. Debe aparecer <code>GET /users</code> con respuesta <code>200</code>.</li>
+ <li>Selecciona un usuario. Debe aparecer <code>GET /posts?userId=ID</code>, donde <code>ID</code> coincide con el usuario seleccionado.</li>
+ <li>Selecciona un usuario distinto y confirma que se envía otra consulta con su ID.</li>
+</ol>
+<p class="note">Las solicitudes se hacen con la API Fetch del navegador; no se necesita Axios ni una clave de acceso.</p>
+
+<h2>Registro breve de pruebas</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Prueba</th><th>Resultado observado</th></tr></thead>
+<tbody>
+<tr><td>Cargar usuarios</td><td>Correcto: HTTP 200 y 10 usuarios con nombre, correo y empresa.</td></tr>
+<tr><td>Cargar publicaciones del usuario 1</td><td>Correcto: HTTP 200 y 10 publicaciones.</td></tr>
+<tr><td>Cambiar al usuario 2</td><td>Correcto: se solicitó <code>userId=2</code> y se mostraron sus 10 publicaciones.</td></tr>
+<tr><td>Fallo de conexión simulado</td><td>Se bloqueó la solicitud de usuarios desde el navegador. La aplicación mostró “No se pudieron cargar los usuarios” y habilitó el reintento.</td></tr>
+<tr><td>Recuperación tras el fallo</td><td>Correcto: al reintentar con conexión disponible, se cargaron nuevamente los 10 usuarios y sus publicaciones.</td></tr>
+</tbody></table></div>
+
+<h2>Para explicar y modificar</h2>
+<p>En <code>script.js</code>, <code>loadUsers()</code> consulta la lista de usuarios y <code>loadPosts(userId)</code> construye la URL con el ID seleccionado. Ambas funciones muestran estados de carga y manejan errores.</p>
+<p>Modificación pequeña para la revisión: cambia el texto del botón <code>Ver publicaciones</code> dentro de <code>renderUsers()</code>, por ejemplo a <code>Publicaciones de este usuario</code>, y comprueba que la selección siga funcionando.</p>
+</main>
+</body>
+</html>
